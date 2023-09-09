@@ -128,7 +128,7 @@ def check_translation(source_text: str, back_translation: str, source_language: 
     return "" if answer == "Yes" else back_translation
 
 
-def translate_source_into_target(source_language: str, source_properties: Properties, target_language: str, target_properties: Properties, folder_path: str):
+def translate_source_into_target(source_language: str, source_properties: Properties, target_language: str, target_properties: Properties, folder_path: str, target_properties_file_abs_path: str):
     with open(f"{folder_path}/validations_{target_language}.html", "w") as vf:
         start_validation_file(vf)
         for source_key in source_properties.keys():
@@ -150,6 +150,8 @@ def translate_source_into_target(source_language: str, source_properties: Proper
                 check=target_properties[check_key],
                 vf=vf
             )
+            with open(target_properties_file_abs_path, "wb") as tf:
+                target_properties.store(tf, encoding="utf-8")
         end_validation_file(vf)
 
 
@@ -175,10 +177,9 @@ def translate_properties_files(folder_path: str):
                         target_language=TARGET_LANGUAGES[target_language_code],
                         source_properties=source_properties,
                         target_properties=target_properties,
-                        folder_path=folder_path
+                        folder_path=folder_path,
+                        target_properties_file_abs_path=target_properties_file_abs_path
                     )
-                    with open(target_properties_file_abs_path, "wb") as tf:
-                        target_properties.store(tf, encoding="utf-8")
 
 
 if __name__ == '__main__':
