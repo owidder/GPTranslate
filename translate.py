@@ -6,7 +6,6 @@ import argparse
 from jproperties import Properties
 
 
-properties = Properties()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 all_languages = {}
 
@@ -129,8 +128,7 @@ def check_translation(source_text: str, back_translation: str, source_language: 
     return "" if answer == "Yes" else back_translation
 
 
-def translate_source_into_target(source_language: str, source_properties: dict, target_language: str, target_properties: dict, folder_path: str) -> dict:
-    new_target_properties = target_properties.copy()
+def translate_source_into_target(source_language: str, source_properties: Properties, target_language: str, target_properties: Properties, folder_path: str):
     with open(f"{folder_path}/validations_{target_language}.html") as vf:
         start_validation_file(vf)
         for source_key in source_properties.keys():
@@ -140,43 +138,47 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
                 translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
                 check = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language)
-                new_target_properties[source_key] = translation
-                new_target_properties[back_key] = back_translation
-                new_target_properties[check_key] = check
+                target_properties[source_key] = translation
+                target_properties[back_key] = back_translation
+                target_properties[check_key] = check
 
             add_translation_row(
                 key=source_key,
                 source_text=source_properties[source_key],
-                translation=new_target_properties[source_key],
-                back_translation=new_target_properties[back_key],
-                check=new_target_properties[check_key],
+                translation=target_properties[source_key],
+                back_translation=target_properties[back_key],
+                check=target_properties[check_key],
                 vf=vf
             )
         end_validation_file(vf)
 
-    return new_target_properties
-
 
 def translate_properties_files(folder_path: str):
     for subdir, dirs, files in os.walk(folder_path):
-        for file in sorted(files):
-            if file.endswith(".properties") and not "_" in file:
-                name = file.split(".")[0]
-                file_abs_path = subdir + os.path.sep + file
-                print(f"translating: {file_abs_path}")
-                with open(file_abs_path, "rb") as f:
-                    properties.load(f)
+        for source_filename in sorted(files):
+            if source_filename.endswith(".properties") and not "_" in source_filename:
+                source_properties_file_abs_path = subdir + os.path.sep + source_filename
+                print(f"translating: {source_properties_file_abs_path}")
+                source_properties = Properties()
+                target_properties = Properties()
+                with open(source_properties_file_abs_path, "rb") as sf:
+                    source_properties.load(sf)
+                source_name = source_filename.split(".")[0]
                 for target_language_code in TARGET_LANGUAGES.keys():
-                    target_filename = f"{name}_{target_language_code}.properties"
-                    if os.path.exists(target_filename):
-                    translated_properties = translate_source_into_target(source_language=SOURCE_LANGUAGE, )
-                    if name in all_languages.keys():
-                        language = all_languages[name]
-                    else:
-                        language = {}
-                        all_languages[name] = language
-                    for item in properties.items():
-                        translate_text(source_text=item[1].data, source_language="English", target_language="German")
+                    target_filename = f"{source_name}_{target_language_code}.properties"
+                    target_properties_file_abs_path = subdir + os.path.sep + target_filename
+                    if os.path.exists(target_properties_file_abs_path):
+                        with open(target_properties_file_abs_path, "rb") as tf:
+                            target_properties.load(tf)
+                    translate_source_into_target(
+                        source_language=SOURCE_LANGUAGE[1],
+                        target_language=TARGET_LANGUAGES[target_language_code],
+                        source_properties=source_properties,
+                        target_properties=target_properties,
+                        folder_path=folder_path
+                    )
+                    with open(target_properties_file_abs_path, "wb") as tf:
+                        target_properties.store(tf, encoding="utf-8")
 
 
 if __name__ == '__main__':
