@@ -137,7 +137,7 @@ def translate_source_into_target(source_language: str, source_properties: Proper
             if not (source_key in target_properties.keys() and back_key in target_properties.keys() and check_key in target_properties.keys()):
                 translation = translate_text(source_text=source_properties[source_key].data, source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
-                check = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language)
+                check = check_translation(source_text=source_properties[source_key].data, back_translation=back_translation, source_language=source_language)
                 target_properties[source_key] = translation
                 target_properties[back_key] = back_translation
                 target_properties[check_key] = check
