@@ -8,6 +8,7 @@ from jproperties import Properties
 
 properties = Properties()
 openai.api_key = os.getenv("OPENAI_API_KEY")
+all_languages = {}
 
 
 LANGUAGES = {
@@ -21,6 +22,24 @@ LANGUAGES = {
     "spa": "Spanish"
 }
 
+
+STYLES = '''
+* {
+    font-family: "Gill Sans", sans-serif;
+}
+td, th {
+    background: lightgrey;
+    padding: 0.5em;
+}
+.bold {
+    font-weight: bolder;
+    font-size: 1em;
+}
+
+.language {
+    font-weight: bolder;
+}
+'''
 
 def translate_text(source_text: str, source_language: str, target_language: str) -> str:
     print(f"-----> [{target_language}] translating: {source_text}")
@@ -47,6 +66,19 @@ def translate_text(source_text: str, source_language: str, target_language: str)
     return translation
 
 
+def init_validations_file(folder_path: str):
+    with open(f"{folder_path}/validations.html") as f:
+        f.write(f"<html>\n<head><style>{STYLES}</style></head>")
+
+
+
+def translate_source_into_target(source_language: str, source_properties: dict, target_language: str, target_properties: dict, validations_file) -> dict:
+    for source_key in source_properties.keys():
+        if not source_key in target_properties.keys():
+            translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
+            back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
+
+
 def translate_properties_files(folder_path: str):
     for subdir, dirs, files in os.walk(folder_path):
         for file in sorted(files):
@@ -55,6 +87,12 @@ def translate_properties_files(folder_path: str):
                 print(f"translating: {file_abs_path}")
                 with open(file_abs_path, "rb") as f:
                     properties.load(f)
+                name = file.split(".")[0]
+                if name in all_languages.keys():
+                    language = all_languages[name]
+                else:
+                    language = {}
+                    all_languages[name] = language
                 for item in properties.items():
                     translate_text(source_text=item[1].data, source_language="English", target_language="German")
 
