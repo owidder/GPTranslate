@@ -132,11 +132,27 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
     with open(f"{folder_path}/validations_{target_language}.html") as vf:
         start_validation_file(vf)
         for source_key in source_properties.keys():
-            if not source_key in target_properties.keys():
+            back_key = f"{source_key}_back"
+            check_key = f"{source_key}_check"
+            if not (source_key in target_properties.keys() and back_key in target_properties.keys() and check_key in target_properties.keys()):
                 translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
                 check = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language)
-                add_translation_row(key=source_key, source_text=source_properties[source_key], back_translation=back_translation, translation=translation, check=check)
+                new_target_properties[source_key] = translation
+                new_target_properties[back_key] = back_translation
+                new_target_properties[check_key] = check
+
+            add_translation_row(
+                key=source_key,
+                source_text=source_properties[source_key],
+                translation=new_target_properties[source_key],
+                back_translation=new_target_properties[back_key],
+                check=new_target_properties[check_key],
+                vf=vf
+            )
+        end_validation_file(vf)
+
+    return new_target_properties
 
 
 def translate_properties_files(folder_path: str):
