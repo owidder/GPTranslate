@@ -11,15 +11,17 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 all_languages = {}
 
 
-LANGUAGES = {
-    "chi": "Chinese",
-    "dut": "Dutch",
-    "ind": "Indonesian",
-    "ita": "Italian",
-    "jpn": "Japanese",
-    "kor": "Korean",
-    "swe": "Swedish",
-    "spa": "Spanish"
+SOURCE_LANGUAGE = ("en", "English")
+
+TARGET_LANGUAGES = {
+    "es": "Spanish",
+    "id": "Indonesian",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "nl": "Dutch",
+    "sv": "Swedish",
+    "zh": "Chinese",
 }
 
 STYLES = '''
@@ -158,19 +160,23 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
 def translate_properties_files(folder_path: str):
     for subdir, dirs, files in os.walk(folder_path):
         for file in sorted(files):
-            if file.endswith("properties"):
+            if file.endswith(".properties") and not "_" in file:
+                name = file.split(".")[0]
                 file_abs_path = subdir + os.path.sep + file
                 print(f"translating: {file_abs_path}")
                 with open(file_abs_path, "rb") as f:
                     properties.load(f)
-                name = file.split(".")[0]
-                if name in all_languages.keys():
-                    language = all_languages[name]
-                else:
-                    language = {}
-                    all_languages[name] = language
-                for item in properties.items():
-                    translate_text(source_text=item[1].data, source_language="English", target_language="German")
+                for target_language_code in TARGET_LANGUAGES.keys():
+                    target_filename = f"{name}_{target_language_code}.properties"
+                    if os.path.exists(target_filename):
+                    translated_properties = translate_source_into_target(source_language=SOURCE_LANGUAGE, )
+                    if name in all_languages.keys():
+                        language = all_languages[name]
+                    else:
+                        language = {}
+                        all_languages[name] = language
+                    for item in properties.items():
+                        translate_text(source_text=item[1].data, source_language="English", target_language="German")
 
 
 if __name__ == '__main__':
