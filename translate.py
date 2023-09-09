@@ -129,13 +129,13 @@ def check_translation(source_text: str, back_translation: str, source_language: 
 
 
 def translate_source_into_target(source_language: str, source_properties: Properties, target_language: str, target_properties: Properties, folder_path: str):
-    with open(f"{folder_path}/validations_{target_language}.html") as vf:
+    with open(f"{folder_path}/validations_{target_language}.html", "w") as vf:
         start_validation_file(vf)
         for source_key in source_properties.keys():
             back_key = f"{source_key}_back"
             check_key = f"{source_key}_check"
             if not (source_key in target_properties.keys() and back_key in target_properties.keys() and check_key in target_properties.keys()):
-                translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
+                translation = translate_text(source_text=source_properties[source_key].data, source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
                 check = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language)
                 target_properties[source_key] = translation
