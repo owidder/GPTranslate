@@ -144,10 +144,10 @@ def translate_source_into_target(source_language: str, source_properties: Proper
 
             add_translation_row(
                 key=source_key,
-                source_text=source_properties[source_key],
-                translation=target_properties[source_key],
-                back_translation=target_properties[back_key],
-                check=target_properties[check_key],
+                source_text=source_properties[source_key].data,
+                translation=target_properties[source_key].data,
+                back_translation=target_properties[back_key].data,
+                check=target_properties[check_key].data,
                 vf=vf
             )
             with open(target_properties_file_abs_path, "wb") as tf:
