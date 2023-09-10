@@ -134,13 +134,18 @@ def translate_source_into_target(source_language: str, source_properties: Proper
         for source_key in source_properties.keys():
             back_key = f"{source_key}_back"
             check_key = f"{source_key}_check"
-            if not (source_key in target_properties.keys() and back_key in target_properties.keys() and check_key in target_properties.keys()):
+            keys = list(target_properties.keys())
+            if not (source_key in keys and back_key in keys and check_key in keys):
                 translation = translate_text(source_text=source_properties[source_key].data, source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
                 check = check_translation(source_text=source_properties[source_key].data, back_translation=back_translation, source_language=source_language)
                 target_properties[source_key] = translation
                 target_properties[back_key] = back_translation
                 target_properties[check_key] = check
+                with open(target_properties_file_abs_path, "a+") as tf:
+                    tf.write(f"{source_key}={target_properties[source_key].data}\n")
+                    tf.write(f"{back_key}={target_properties[back_key].data}\n")
+                    tf.write(f"{check_key}={target_properties[check_key].data}\n")
 
             add_translation_row(
                 key=source_key,
@@ -150,8 +155,6 @@ def translate_source_into_target(source_language: str, source_properties: Proper
                 check=target_properties[check_key].data,
                 vf=vf
             )
-            with open(target_properties_file_abs_path, "wb") as tf:
-                target_properties.store(tf, encoding="utf-8")
         end_validation_file(vf)
 
 
