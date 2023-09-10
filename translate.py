@@ -134,23 +134,23 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
             check_key = f"{source_key}_check"
             keys = list(target_properties.keys())
             if not (source_key in keys and back_key in keys and check_key in keys):
-                translation = translate_text(source_text=source_properties[source_key].data, source_language=source_language, target_language=target_language)
+                translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
-                check = check_translation(source_text=source_properties[source_key].data, back_translation=back_translation, source_language=source_language)
+                check = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language)
                 target_properties[source_key] = translation
                 target_properties[back_key] = back_translation
                 target_properties[check_key] = check
                 with open(target_properties_file_abs_path, "a+", encoding="utf-8") as tf:
-                    tf.write(f"{source_key}={target_properties[source_key].data}\n")
-                    tf.write(f"{back_key}={target_properties[back_key].data}\n")
-                    tf.write(f"{check_key}={target_properties[check_key].data}\n")
+                    tf.write(f"{source_key}={target_properties[source_key]}\n")
+                    tf.write(f"{back_key}={target_properties[back_key]}\n")
+                    tf.write(f"{check_key}={target_properties[check_key]}\n")
 
             add_translation_row(
                 key=source_key,
-                source_text=source_properties[source_key].data,
-                translation=target_properties[source_key].data,
-                back_translation=target_properties[back_key].data,
-                check=target_properties[check_key].data,
+                source_text=source_properties[source_key],
+                translation=target_properties[source_key],
+                back_translation=target_properties[back_key],
+                check=target_properties[check_key],
                 vf=vf
             )
         end_validation_file(vf)
