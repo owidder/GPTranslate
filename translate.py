@@ -13,6 +13,7 @@ all_languages = {}
 SOURCE_LANGUAGE = ("en", "English")
 
 TARGET_LANGUAGES = {
+    "de": "German",
     "es": "Spanish",
     "id": "Indonesian",
     "it": "Italian",
