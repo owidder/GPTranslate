@@ -151,7 +151,7 @@ def translate_source_into_target(source_language: str, source_properties: Proper
                 vf=vf
             )
             with open(target_properties_file_abs_path, "wb") as tf:
-                target_properties.store(tf, encoding="utf-8")
+                target_properties.store(tf)
         end_validation_file(vf)
 
 
