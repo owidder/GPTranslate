@@ -4,8 +4,6 @@ import argparse
 
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-all_languages = {}
-
 
 SOURCE_LANGUAGE = ("en", "English")
 
