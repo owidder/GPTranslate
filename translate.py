@@ -162,11 +162,11 @@ def translate_properties_files(folder_path: str):
                 source_properties_file_abs_path = subdir + os.path.sep + source_filename
                 print(f"translating: {source_properties_file_abs_path}")
                 source_properties = Properties()
-                target_properties = Properties()
                 with open(source_properties_file_abs_path, "rb") as sf:
                     source_properties.load(sf)
                 source_name = source_filename.split(".")[0]
                 for target_language_code in TARGET_LANGUAGES.keys():
+                    target_properties = Properties()
                     target_filename = f"{source_name}_{target_language_code}.properties"
                     target_properties_file_abs_path = subdir + os.path.sep + target_filename
                     if os.path.exists(target_properties_file_abs_path):
