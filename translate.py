@@ -1,9 +1,6 @@
 import os
-import json
 import openai
-import collections
 import argparse
-from jproperties import Properties
 
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -129,7 +126,7 @@ def check_translation(source_text: str, back_translation: str, source_language: 
     return answer
 
 
-def translate_source_into_target(source_language: str, source_properties: Properties, target_language: str, target_properties: Properties, folder_path: str, target_properties_file_abs_path: str):
+def translate_source_into_target(source_language: str, source_properties: dict, target_language: str, target_properties: dict, folder_path: str, target_properties_file_abs_path: str):
     with open(f"{folder_path}/validations_{target_language}.html", "w", encoding="utf-8") as vf:
         start_validation_file(vf)
         for source_key in source_properties.keys():
@@ -159,23 +156,31 @@ def translate_source_into_target(source_language: str, source_properties: Proper
         end_validation_file(vf)
 
 
+def read_properties(abs_path: str) -> dict:
+    props = {}
+    if os.path.exists(abs_path):
+        with open(abs_path, "r", encoding="utf-8") as sf:
+            source_lines = sf.readlines()
+            for line in source_lines:
+                if "=" in line:
+                    stripped_line = line.rstrip()
+                    key, value = stripped_line.split("=")
+                    props[key] = value
+    return props
+
+
 def translate_properties_files(folder_path: str):
     for subdir, dirs, files in os.walk(folder_path):
         for source_filename in sorted(files):
             if source_filename.endswith(".properties") and not "_" in source_filename:
                 source_properties_file_abs_path = subdir + os.path.sep + source_filename
                 print(f"translating: {source_properties_file_abs_path}")
-                source_properties = Properties()
-                with open(source_properties_file_abs_path, "rb") as sf:
-                    source_properties.load(sf)
+                source_properties = read_properties(source_properties_file_abs_path)
                 source_name = source_filename.split(".")[0]
                 for target_language_code in TARGET_LANGUAGES.keys():
-                    target_properties = Properties()
                     target_filename = f"{source_name}_{target_language_code}.properties"
                     target_properties_file_abs_path = subdir + os.path.sep + target_filename
-                    if os.path.exists(target_properties_file_abs_path):
-                        with open(target_properties_file_abs_path, "rb") as tf:
-                            target_properties.load(tf)
+                    target_properties = read_properties(target_properties_file_abs_path)
                     translate_source_into_target(
                         source_language=SOURCE_LANGUAGE[1],
                         target_language=TARGET_LANGUAGES[target_language_code],
