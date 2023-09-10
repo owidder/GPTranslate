@@ -129,7 +129,7 @@ def check_translation(source_text: str, back_translation: str, source_language: 
 
 
 def translate_source_into_target(source_language: str, source_properties: Properties, target_language: str, target_properties: Properties, folder_path: str, target_properties_file_abs_path: str):
-    with open(f"{folder_path}/validations_{target_language}.html", "w") as vf:
+    with open(f"{folder_path}/validations_{target_language}.html", "w", encoding="utf-8") as vf:
         start_validation_file(vf)
         for source_key in source_properties.keys():
             back_key = f"{source_key}_back"
@@ -142,7 +142,7 @@ def translate_source_into_target(source_language: str, source_properties: Proper
                 target_properties[source_key] = translation
                 target_properties[back_key] = back_translation
                 target_properties[check_key] = check
-                with open(target_properties_file_abs_path, "a+") as tf:
+                with open(target_properties_file_abs_path, "a+", encoding="utf-8") as tf:
                     tf.write(f"{source_key}={target_properties[source_key].data}\n")
                     tf.write(f"{back_key}={target_properties[back_key].data}\n")
                     tf.write(f"{check_key}={target_properties[check_key].data}\n")
