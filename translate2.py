@@ -136,8 +136,8 @@ def check_translation(source_text: str, back_translation: str, source_language: 
     system2 = (
         f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
         f"The first one is in {source_language} language. The second one is in {target_language} language."
-        f"Please decide whether there is a possible translation of the second value that has the same meaning as the first message!"
-        f"If there is one, only answer with this possible translation from {target_language} into {source_language}. If not, only answer with an empty string"
+        f"Please decide whether there is a possible translation of the second value from {target_language} into {source_language} that has the same meaning as the first message!"
+        f"If there is a possible translation from {target_language} into {source_language}, just answer with this possible translation. No extra text! If there is no possible translation, just answer with an empty string"
     )
     user2 = (
         f"1. {source_text}"
@@ -146,34 +146,6 @@ def check_translation(source_text: str, back_translation: str, source_language: 
     answer2 = ask_chatgpt(user=user2, system=system2)
 
     return answer1, answer2
-
-
-def check_translation_2(source_text: str, translation: str, source_language: str, target_language: str) -> str:
-    print(f"-----> checking_2: {source_text} <-> {translation}")
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "system",
-                "content": f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
-                           f"The first one in {source_language} language. The second one is in {target_language} language."
-                           f"Please decide whether there is a possible translation of the second value that has the same meaning as the first message!"
-            },
-            {
-                "role": "user",
-                "content": f"1. {source_text}"
-                           f"2. {translation}"
-            }
-        ],
-        temperature=0,
-        max_tokens=256,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-    answer = response["choices"][0]["message"]["content"]
-    print(f"--------------------> {answer}")
-    return answer
 
 
 def translate_source_into_target(source_language: str, source_properties: dict, target_language: str, target_properties: dict, folder_path: str, target_properties_file_abs_path: str):
