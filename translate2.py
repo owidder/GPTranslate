@@ -43,7 +43,8 @@ TABLE_HEAD = '''
         <th>key</th>
         <th>source text</th>
         <th>back translation</th>
-        <th>check</th>
+        <th>check1</th>
+        <th>check2</th>
         <th>translation</th>
     </tr>
 '''
@@ -59,14 +60,17 @@ def end_validation_file(vf):
     vf.write("</html>")
 
 
-def add_translation_row(key: str, source_text: str, translation: str, back_translation: str, check: str, vf):
-    background_color = "rgba(166, 236, 153, .5)" if len(check) > 0 else "rgba(242, 169, 59, .5)"
+def add_translation_row(key: str, source_text: str, translation: str, back_translation: str, check: str, check2: str, vf):
+    check1_ok = (check == "Yes")
+    check2_ok = (len(check2) > 0)
+    background_color = "rgba(166, 236, 153, .5)" if check1_ok and check2_ok else ("rgba(242, 169, 59, .5)" if not check1_ok and not check2_ok else "lightgray")
     vf.write(
         f"<tr>"
         f"<td class='bold' style='background: {background_color}'>{key}</td>"
         f"<td style='background: {background_color}'>{format(source_text)}</td>"
         f"<td style='background: {background_color}'>{format(back_translation)}</td>"
         f"<td style='background: {background_color}'>{check}</td>"
+        f"<td style='background: {background_color}'>{check2}</td>"
         f"<td style='background: {background_color}'>{format(translation)}</td>"
         f"</tr>\n"
     )
@@ -154,6 +158,7 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
         for source_key in source_properties.keys():
             back_key = f"{source_key}_back"
             check_key = f"{source_key}_check"
+            check2_key = f"{source_key}_check2"
             keys = list(target_properties.keys())
             if not (source_key in keys and back_key in keys and check_key in keys):
                 translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
@@ -161,11 +166,13 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
                 check, check2 = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language, target_language=target_language, translation=translation)
                 target_properties[source_key] = translation
                 target_properties[back_key] = back_translation
-                target_properties[check_key] = check2
+                target_properties[check_key] = check
+                target_properties[check2_key] = check2
                 with open(target_properties_file_abs_path, "a+", encoding="utf-8") as tf:
                     tf.write(f"{source_key}={target_properties[source_key]}\n")
                     tf.write(f"{back_key}={target_properties[back_key]}\n")
                     tf.write(f"{check_key}={target_properties[check_key]}\n")
+                    tf.write(f"{check2_key}={target_properties[check2_key]}\n")
 
             add_translation_row(
                 key=source_key,
