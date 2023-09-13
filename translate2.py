@@ -160,7 +160,7 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
             check_key = f"{source_key}_check"
             check2_key = f"{source_key}_check2"
             keys = list(target_properties.keys())
-            if not (source_key in keys and back_key in keys and check_key in keys):
+            if not (source_key in keys and back_key in keys and check_key in keys and check2_key in keys):
                 translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
                 check, check2 = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language, target_language=target_language, translation=translation)
