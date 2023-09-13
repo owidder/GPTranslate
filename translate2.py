@@ -180,6 +180,7 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
                 translation=target_properties[source_key],
                 back_translation=target_properties[back_key],
                 check=target_properties[check_key],
+                check2=target_properties[check2_key],
                 vf=vf
             )
         end_validation_file(vf)
