@@ -141,7 +141,8 @@ def check_translation(source_text: str, back_translation: str, source_language: 
         f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
         f"The first one is in {source_language} language. The second one is in {target_language} language."
         f"Please decide whether there is a possible translation of the second value from {target_language} into {source_language} that has the same meaning as the first message!"
-        f"If there is a possible translation from {target_language} into {source_language}, just answer with this possible translation. No extra text! If there is no possible translation, just answer with an empty string"
+        f"If there is a possible translation from {target_language} into {source_language} that has the same meaning as the first message, just answer with this possible translation. No extra text! "
+        f"If there is no possible translation from {target_language} into {source_language} that has the same meaning as the first message, just answer with NO"
     )
     user2 = (
         f"1. {source_text}"
