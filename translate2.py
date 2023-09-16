@@ -65,7 +65,7 @@ def end_validation_file(vf):
 def add_translation_row(key: str, source_text: str, translation: str, improved_translation: str, back_translation: str, back_improved_translation, check: str, check_improved: str, vf):
     check_ok = (check == "Yes")
     check_improved_ok = (check_improved == "Yes")
-    background_color = "rgba(166, 236, 153, .5)" if check_ok and check_improved_ok else ("rgba(242, 169, 59, .5)" if not check_ok and not check_improved_ok else "lightgray")
+    background_color = "rgba(166, 236, 153, .5)" if check_ok or check_improved_ok else ("rgba(242, 169, 59, .5)" if not check_ok and not check_improved_ok else "lightgray")
     vf.write(
         f"<tr>"
         f"<td class='bold' style='background: {background_color}'>{key}</td>"
