@@ -43,9 +43,11 @@ TABLE_HEAD = '''
         <th>key</th>
         <th>source text</th>
         <th>back translation</th>
-        <th>check1</th>
-        <th>check2</th>
+        <th>back improved translation</th>
+        <th>check</th>
+        <th>check improved</th>
         <th>translation</th>
+        <th>improved translation</th>
     </tr>
 '''
 
@@ -60,18 +62,20 @@ def end_validation_file(vf):
     vf.write("</html>")
 
 
-def add_translation_row(key: str, source_text: str, translation: str, back_translation: str, check: str, check2: str, vf):
-    check1_ok = (check == "Yes")
-    check2_ok = (len(check2) > 0)
-    background_color = "rgba(166, 236, 153, .5)" if check1_ok and check2_ok else ("rgba(242, 169, 59, .5)" if not check1_ok and not check2_ok else "lightgray")
+def add_translation_row(key: str, source_text: str, translation: str, improved_translation: str, back_translation: str, back_improved_translation, check: str, check_improved: str, vf):
+    check_ok = (check == "Yes")
+    check_improved_ok = (check_improved == "Yes")
+    background_color = "rgba(166, 236, 153, .5)" if check_ok and check_improved_ok else ("rgba(242, 169, 59, .5)" if not check_ok and not check_improved_ok else "lightgray")
     vf.write(
         f"<tr>"
         f"<td class='bold' style='background: {background_color}'>{key}</td>"
         f"<td style='background: {background_color}'>{format(source_text)}</td>"
         f"<td style='background: {background_color}'>{format(back_translation)}</td>"
+        f"<td style='background: {background_color}'>{format(back_improved_translation)}</td>"
         f"<td style='background: {background_color}'>{check}</td>"
-        f"<td style='background: {background_color}'>{check2}</td>"
+        f"<td style='background: {background_color}'>{check_improved}</td>"
         f"<td style='background: {background_color}'>{format(translation)}</td>"
+        f"<td style='background: {background_color}'>{format(improved_translation)}</td>"
         f"</tr>\n"
     )
 
@@ -125,32 +129,32 @@ def translate_text(source_text: str, source_language: str, target_language: str)
     return translation
 
 
-def check_translation(source_text: str, back_translation: str, source_language: str, target_language: str, translation: str) -> (str, str):
+def check_translation(source_text: str, back_translation: str, source_language: str) -> str:
     print(f"-----> checking: {source_text} <-> {back_translation}")
-    system1 = (
+    system = (
         f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application in {source_language} language."
         f"Please decide whether they have the same meaning! Only answer with Yes or No!"
     )
-    user1 = (
+    user = (
         f"1. {source_text}"
         f"2. {back_translation}"
     )
-    answer1 = ask_chatgpt(user=user1, system=system1, model="gpt-3.5-turbo")
+    answer = ask_chatgpt(user=user, system=system, model="gpt-3.5-turbo")
+    return answer
 
-    answer2 = ""
-    if (answer1 != "Yes"):
-        system2 = (
-            f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
-            f"The first value is in {source_language} language. The second value is its translation into {target_language} language."
-            f"Find a better translation from {source_language} to {target_language} and answer only with this translation?"
-        )
-        user2 = (
-            f"1. {source_text}"
-            f"2. {translation}"
-        )
-        answer2 = ask_chatgpt(user=user2, system=system2, model="gpt-4")
 
-    return answer1, answer2
+def improve_translation(source_text: str, source_language: str, translation: str, target_language: str) -> str:
+    system = (
+        f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
+        f"The first value is in {source_language} language. The second value is its translation into {target_language} language."
+        f"Find a better translation from {source_language} to {target_language} and answer only with this translation?"
+    )
+    user = (
+        f"1. {source_text}"
+        f"2. {translation}"
+    )
+    answer = ask_chatgpt(user=user, system=system, model="gpt-4")
+    return answer
 
 
 def translate_source_into_target(source_language: str, source_properties: dict, target_language: str, target_properties: dict, folder_path: str, target_properties_file_abs_path: str):
@@ -158,30 +162,48 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
         start_validation_file(vf)
         for source_key in source_properties.keys():
             back_key = f"{source_key}_back"
+            back_improved_key = f"{source_key}_back_improved"
             check_key = f"{source_key}_check"
-            check2_key = f"{source_key}_check2"
+            check_improved_key = f"{source_key}_check_improved"
             keys = list(target_properties.keys())
-            if not (source_key in keys and back_key in keys and check_key in keys and check2_key in keys):
+            if not (source_key in keys and back_key in keys and check_key in keys and check_improved_key in keys and back_improved_key in keys):
                 translation = translate_text(source_text=source_properties[source_key], source_language=source_language, target_language=target_language)
                 back_translation = translate_text(source_text=translation, source_language=target_language, target_language=source_language)
-                check, check2 = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language, target_language=target_language, translation=translation)
+                check = check_translation(source_text=source_properties[source_key], back_translation=back_translation, source_language=source_language)
+                improved_translation = ""
+                back_improved_translation = ""
+                check_improved = ""
+                if check != 'Yes':
+                    print(f"-----> improving: {source_properties[source_key]} <-> {back_translation}")
+                    improved_translation = improve_translation(
+                        source_text=source_properties[source_key],
+                        source_language=source_language,
+                        target_language=target_language,
+                        translation=translation
+                    )
+                    back_improved_translation = translate_text(source_text=improved_translation, source_language=target_language, target_language=source_language)
+                    check_improved = check_translation(source_text=source_properties[source_key], back_translation=back_improved_translation, source_language=source_language)
                 target_properties[source_key] = translation
                 target_properties[back_key] = back_translation
                 target_properties[check_key] = check
-                target_properties[check2_key] = check2.replace("\n", " ")
+                target_properties[check_improved_key] = check_improved
+                target_properties[back_improved_key] = back_improved_translation
                 with open(target_properties_file_abs_path, "a+", encoding="utf-8") as tf:
                     tf.write(f"{source_key}={target_properties[source_key]}\n")
                     tf.write(f"{back_key}={target_properties[back_key]}\n")
+                    tf.write(f"{back_improved_key}={target_properties[back_improved_key]}\n")
                     tf.write(f"{check_key}={target_properties[check_key]}\n")
-                    tf.write(f"{check2_key}={target_properties[check2_key]}\n")
+                    tf.write(f"{check_improved_key}={target_properties[check_improved_key]}\n")
 
             add_translation_row(
                 key=source_key,
                 source_text=source_properties[source_key],
                 translation=target_properties[source_key],
+                improved_translation=improved_translation,
                 back_translation=target_properties[back_key],
+                back_improved_translation=back_improved_translation,
                 check=target_properties[check_key],
-                check2=target_properties[check2_key],
+                check_improved=target_properties[check_improved_key],
                 vf=vf
             )
         end_validation_file(vf)
