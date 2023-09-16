@@ -76,9 +76,9 @@ def add_translation_row(key: str, source_text: str, translation: str, back_trans
     )
 
 
-def ask_chatgpt(system: str, user: str) -> str:
+def ask_chatgpt(system: str, user: str, model: str) -> str:
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=model,
         messages=[
             {
                 "role": "system",
@@ -135,19 +135,20 @@ def check_translation(source_text: str, back_translation: str, source_language: 
         f"1. {source_text}"
         f"2. {back_translation}"
     )
-    answer1 = ask_chatgpt(user=user1, system=system1)
+    answer1 = ask_chatgpt(user=user1, system=system1, model="gpt-3.5-turbo")
 
-    system2 = (
-        f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
-        f"The first value is in {source_language} language. The second value is in {target_language} language."
-        f"Please try to find a possible translation from of the second value into {source_language} that has the same meaning as the first value."
-        #f"If you can find such a translation, answer with this translation. Other answer with NO"
-    )
-    user2 = (
-        f"1. {source_text}"
-        f"2. {translation}"
-    )
-    answer2 = ask_chatgpt(user=user2, system=system2)
+    answer2 = ""
+    if (answer1 != "Yes"):
+        system2 = (
+            f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
+            f"The first value is in {source_language} language. The second value is its translation into {target_language} language."
+            f"Find a better translation from {source_language} to {target_language} and answer only with this translation?"
+        )
+        user2 = (
+            f"1. {source_text}"
+            f"2. {translation}"
+        )
+        answer2 = ask_chatgpt(user=user2, system=system2, model="gpt-4")
 
     return answer1, answer2
 
