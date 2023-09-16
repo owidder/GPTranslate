@@ -139,10 +139,9 @@ def check_translation(source_text: str, back_translation: str, source_language: 
 
     system2 = (
         f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application."
-        f"The first one is in {source_language} language. The second one is in {target_language} language."
-        f"Please decide whether there is a possible translation of the second value from {target_language} into {source_language} that has the same meaning as the first message!"
-        f"If there is a possible translation from {target_language} into {source_language} that has the same meaning as the first message, just answer with this possible translation. No extra text! "
-        f"If there is no possible translation from {target_language} into {source_language} that has the same meaning as the first message, just answer with NO"
+        f"The first value is in {source_language} language. The second value is in {target_language} language."
+        f"Please try to find a possible translation from of the second value into {source_language} that has the same meaning as the first value."
+        #f"If you can find such a translation, answer with this translation. Other answer with NO"
     )
     user2 = (
         f"1. {source_text}"
@@ -168,7 +167,7 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
                 target_properties[source_key] = translation
                 target_properties[back_key] = back_translation
                 target_properties[check_key] = check
-                target_properties[check2_key] = check2
+                target_properties[check2_key] = check2.replace("\n", " ")
                 with open(target_properties_file_abs_path, "a+", encoding="utf-8") as tf:
                     tf.write(f"{source_key}={target_properties[source_key]}\n")
                     tf.write(f"{back_key}={target_properties[back_key]}\n")
