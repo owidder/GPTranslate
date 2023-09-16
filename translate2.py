@@ -65,7 +65,7 @@ def end_validation_file(vf):
 def add_translation_row(key: str, source_text: str, translation: str, improved_translation: str, back_translation: str, back_improved_translation, check: str, check_improved: str, vf):
     check_ok = (check == "Yes")
     check_improved_ok = (check_improved == "Yes")
-    background_color = "rgba(166, 236, 153, .5)" if check_ok or check_improved_ok else ("rgba(242, 169, 59, .5)" if not check_ok and not check_improved_ok else "lightgray")
+    background_color = "rgba(166, 236, 153, .5)" if check_ok and not check_improved_ok else "rgba(166, 236, 153, .3)" if check_improved_ok else ("rgba(242, 169, 59, .5)" if not check_ok and not check_improved_ok else "lightgray")
     vf.write(
         f"<tr>"
         f"<td class='bold' style='background: {background_color}'>{key}</td>"
@@ -202,9 +202,9 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
                 key=source_key,
                 source_text=source_properties[source_key],
                 translation=target_properties[source_key],
-                improved_translation=improved_translation,
+                improved_translation=target_properties[improved_key],
                 back_translation=target_properties[back_key],
-                back_improved_translation=back_improved_translation,
+                back_improved_translation=target_properties[back_improved_key],
                 check=target_properties[check_key],
                 check_improved=target_properties[check_improved_key],
                 vf=vf
