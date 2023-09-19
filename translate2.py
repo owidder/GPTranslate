@@ -111,8 +111,8 @@ def translate_text(source_text: str, source_language: str, target_language: str)
         messages=[
             {
                 "role": "system",
-                "content": f"You are an expert in pharmacy. You will be provided with the value of a Java properties file from a pharmacy application in {source_language} language."
-                           f"Please translate this text into {target_language}. Please do only translate. Never add your own text."
+                "content": f"You are an expert in pharmacy. Please translate the following {source_language} text from a Java properties file into {target_language}. Ensure that the translated text retains the original meaning, tone, and intent."
+                           f"Please answer only with the translation."
             },
             {
                 "role": "user",
@@ -130,9 +130,11 @@ def translate_text(source_text: str, source_language: str, target_language: str)
 
 
 def check_translation(source_text: str, back_translation: str, source_language: str) -> str:
+    if source_text.strip() == back_translation.strip():
+        return "Yes"
     print(f"-----> checking: {source_text} <-> {back_translation}")
     system = (
-        f"You are an expert in pharmacy. You will be provided with two values of a Java properties file from a pharmacy application in {source_language} language."
+        f"You are an expert in pharmacy. You will be provided with two texts from a Java properties file from a pharmacy application in {source_language} language."
         f"Please decide whether they have the same meaning! Only answer with Yes or No!"
     )
     user = (
