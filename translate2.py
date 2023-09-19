@@ -157,10 +157,15 @@ def improve_translation(source_text: str, source_language: str, translation: str
     return answer
 
 
+def normalize(text: str) -> str:
+    return text.replace("\n", "<br>")
+
+
 def translate_source_into_target(source_language: str, source_properties: dict, target_language: str, target_properties: dict, folder_path: str, target_properties_file_abs_path: str):
     with open(f"{folder_path}/validations_{target_language}.html", "w", encoding="utf-8") as vf:
         start_validation_file(vf)
         for source_key in source_properties.keys():
+            print("#####################################################")
             back_key = f"{source_key}_back"
             improved_key = f"{source_key}_improved"
             back_improved_key = f"{source_key}_back_improved"
@@ -191,12 +196,12 @@ def translate_source_into_target(source_language: str, source_properties: dict, 
                 target_properties[check_improved_key] = check_improved
                 target_properties[back_improved_key] = back_improved_translation
                 with open(target_properties_file_abs_path, "a+", encoding="utf-8") as tf:
-                    tf.write(f"{source_key}={translation}\n")
-                    tf.write(f"{improved_key}={improved_translation}\n")
-                    tf.write(f"{back_key}={back_translation}\n")
-                    tf.write(f"{back_improved_key}={back_improved_translation}\n")
-                    tf.write(f"{check_key}={check}\n")
-                    tf.write(f"{check_improved_key}={check_improved}\n")
+                    tf.write(f"{source_key}={normalize(translation)}\n")
+                    tf.write(f"{improved_key}={normalize(improved_translation)}\n")
+                    tf.write(f"{back_key}={normalize(back_translation)}\n")
+                    tf.write(f"{back_improved_key}={normalize(back_improved_translation)}\n")
+                    tf.write(f"{check_key}={normalize(check)}\n")
+                    tf.write(f"{check_improved_key}={normalize(check_improved)}\n")
 
             add_translation_row(
                 key=source_key,
@@ -219,8 +224,10 @@ def read_properties(abs_path: str) -> dict:
             source_lines = sf.readlines()
             for line in source_lines:
                 if "=" in line:
-                    stripped_line = line.rstrip()
-                    key, value = stripped_line.split("=")
+                    stripped_line = line.strip()
+                    parts = stripped_line.split("=")
+                    key = parts[0].strip()
+                    value = "=".join(parts[1:])
                     props[key] = value
     return props
 
