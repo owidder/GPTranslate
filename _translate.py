@@ -92,7 +92,7 @@ def get_translation(source_text: str, source_language: str, target_language: str
     user_lines = [f"Original {source_language}: \"{source_text}\""]
     user_lines.extend([f"{language} Translation: \"{translation}\"" for language, translation in translations.items()])
     user = "\n".join(user_lines)
-    print(f"get_translation: start")
+    print(f"get_translation for '{source_text}'")
     answer = ask_chatgpt(system, user, model="gpt-4")
     print(f"get_translation: answer={answer}")
     return answer
@@ -101,14 +101,14 @@ def get_translation(source_text: str, source_language: str, target_language: str
 def check_translation(source_text: str, source_language: str, back_translation: str) -> str:
     system = (
         f"You are an expert in pharmacy and computers. In the following you get two {source_language} texts from a Java properties file."
-        f"Check whether both texts have the same meaning, tone and intent"
+        f"Check whether both texts have the same meaning, tone and intent. Please do not translate technical terms for computers or pharmacy"
         f"Answer only with Yes or No"
     )
     user = (
         f"First text: {source_text}"
         f"Second text: {back_translation}"
     )
-    print(f"check_translation: start")
+    print(f"check_translation {source_text} <-> {back_translation}")
     answer = ask_chatgpt(system, user, model="gpt-3.5-turbo")
     print(f"check_translation: answer={answer}")
     return answer
@@ -127,7 +127,7 @@ def translate_and_improve(source_text: str, source_language: str, target_languag
     back_translation = normalize(get_translation(source_text=translation, translations=translations2, source_language=target_language, target_language=source_language))
     check = check_translation(source_text=source_text, back_translation=back_translation, source_language=source_language)
     print("------------------------------")
-    print(f"sorce text: {source_text}")
+    print(f"source text: {source_text}")
     print(f"translation: {translation}")
     print(f"back translation: {back_translation}")
     print(f"check: {check}")
@@ -154,9 +154,10 @@ if __name__ == '__main__':
 
     translations_data = collect_translations_from_directory(args.path)
 
-    with open(f"{args.path}/messages_{target_language_code}.properties", "a") as f:
+    with open(f"{args.path}/messages_{target_language_code}.properties", "a") as f, open(f"{args.path}/_messages_{target_language_code}.properties", "w") as _f:
         for key, translations in translations_data.items():
-            if SOURCE_LANGUAGE in translations:
+            if SOURCE_LANGUAGE in translations and not TARGET_LANGUAGE in translations:
+                print("###########################################################")
                 source_text = translations[SOURCE_LANGUAGE]
                 translation, back_translation, check = translate_and_improve(
                     source_text=translations[SOURCE_LANGUAGE],
@@ -164,5 +165,11 @@ if __name__ == '__main__':
                     target_language=TARGET_LANGUAGE,
                     translations=translations
                 )
-                if check.lower() == 'yes':
+                if check.lower() == 'yes' or source_text == back_translation:
                     f.write(f"{key}={translation}\n")
+                else:
+                    _f.write(f"{key}={translation}\n")
+                    _f.write(f"{key}.back={back_translation}\n")
+                    _f.write(f"{key}.source={source_text}\n")
+                f.flush()
+                _f.flush()
