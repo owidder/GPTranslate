@@ -8,6 +8,7 @@ import json
 import csv
 import zipfile
 import pandas as pd
+import sys
 
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -126,7 +127,7 @@ def generate_html_table(headers, data):
     return html
 
 
-def read_tsv_file(filename: str, max_number_of_sentences = 100, min_text_length: int = 700):
+def read_tsv_file(filename: str, max_number_of_sentences = sys.maxsize):
     """
     Reads a TSV file and returns the data as a list of dictionaries.
 
@@ -139,12 +140,11 @@ def read_tsv_file(filename: str, max_number_of_sentences = 100, min_text_length:
                      names=["sentence_no", "language", "text", "author", "ts1", "ts2"])
     current_number_of_sentences = 0
     for index, row in df.iterrows():
-        if len(row["text"]) > min_text_length:
-            print(f"{index} -> {row['text']}")
-            data.append(row.to_dict())
-            current_number_of_sentences += 1
-            if current_number_of_sentences >= max_number_of_sentences:
-                break
+        print(f"{index} -> {row['text']}")
+        data.append(row.to_dict())
+        current_number_of_sentences += 1
+        if current_number_of_sentences >= max_number_of_sentences:
+            break
 
     return data
 
@@ -166,10 +166,12 @@ def read_translated_sentences(filename) -> [dict]:
 
 
 if __name__ == '__main__':
-    translated_sentences = read_translated_sentences(filename="./eng_translations_detailed.tsv")
-    sentences = read_tsv_file(filename="./eng_sentences_detailed.tsv.zip")
+    MIN_LENGTH = 100
+    out_name = f"./eng_translations_detailed.{MIN_LENGTH}.tsv"
+    translated_sentences = read_translated_sentences(filename=out_name)
+    sentences = read_tsv_file(filename="./eng_sentences_detailed.tsv.500")
     sentence_nos = [t["sentence_no"] for t in translated_sentences]
-    with open("./eng_translations_detailed.tsv", 'a', encoding='utf-8') as et:
+    with open(out_name, 'a', encoding='utf-8') as et:
         for s in sentences:
             sentence_no: int = s["sentence_no"]
             if sentence_no not in sentence_nos:

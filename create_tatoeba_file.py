@@ -9,7 +9,8 @@ def filter_tatoeba_file(source_filename: str, min_text_length=800, max_sentences
     with open(source_filename, 'r', encoding='utf-8') as file:
         line_count = len(file.readlines())
 
-    with open(source_filename, 'r', encoding='utf-8') as source, open(f"{source_filename}.{min_text_length}", 'w', encoding='utf-8') as target:
+    out_name = f"{'.'.join(source_filename.split('.')[0:-1])}.{min_text_length}.{source_filename.split('.')[-1]}"
+    with open(source_filename, 'r', encoding='utf-8') as source, open(out_name, 'w', encoding='utf-8') as target:
         reader = csv.DictReader(source, delimiter='\t', quotechar='|',
                                 fieldnames=["sentence_no", "language", "text", "author", "ts1", "ts2"])
 
