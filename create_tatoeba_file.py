@@ -16,7 +16,7 @@ def filter_tatoeba_file(source_filename: str, min_text_length=800, max_sentences
         # Iterate over the rows in the file
         for index, row in enumerate(reader):
             l = len(row["text"])
-            if l > min_text_length:
+            if l >= min_text_length and l < (min_text_length+100):
                 target.write("\t".join(list(row.values()))+"\n")
                 sentence_count += 1
                 print(f"{l}: {index} / {row['sentence_no']} / {sentence_count} / {line_count}")
