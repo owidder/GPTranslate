@@ -169,7 +169,7 @@ if __name__ == '__main__':
     MIN_LENGTH = 100
     out_name = f"./eng_translations_detailed.{MIN_LENGTH}.tsv"
     translated_sentences = read_translated_sentences(filename=out_name)
-    sentences = read_tsv_file(filename="./eng_sentences_detailed.tsv.500")
+    sentences = read_tsv_file(filename=f"./eng_sentences_detailed.{MIN_LENGTH}.tsv")
     sentence_nos = [t["sentence_no"] for t in translated_sentences]
     with open(out_name, 'a', encoding='utf-8') as et:
         for s in sentences:
