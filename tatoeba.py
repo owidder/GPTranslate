@@ -140,7 +140,6 @@ def read_tsv_file(filename: str, max_number_of_sentences = sys.maxsize):
                      names=["sentence_no", "language", "text", "author", "ts1", "ts2"])
     current_number_of_sentences = 0
     for index, row in df.iterrows():
-        print(f"{index} -> {row['text']}")
         data.append(row.to_dict())
         current_number_of_sentences += 1
         if current_number_of_sentences >= max_number_of_sentences:
@@ -166,10 +165,10 @@ def read_translated_sentences(filename) -> [dict]:
 
 
 if __name__ == '__main__':
-    MIN_LENGTH = 100
+    MIN_LENGTH = 900
     out_name = f"./eng_translations_detailed.{MIN_LENGTH}.tsv"
     translated_sentences = read_translated_sentences(filename=out_name)
-    sentences = read_tsv_file(filename=f"./eng_sentences_detailed.{MIN_LENGTH}.tsv")
+    sentences = read_tsv_file(filename=f"./eng_sentences_detailed.{MIN_LENGTH}.tsv", max_number_of_sentences=100)
     sentence_nos = [t["sentence_no"] for t in translated_sentences]
     with open(out_name, 'a', encoding='utf-8') as et:
         for s in sentences:
