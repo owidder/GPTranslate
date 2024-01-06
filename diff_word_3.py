@@ -28,7 +28,7 @@ def create_tr(with_tranlations, without_translations, source_text: str, official
 
 
 if __name__ == "__main__":
-    MIN_LENGTH = 300
+    MIN_LENGTH = 100
     table = '<table style="background-color: lightgrey; border: 1px solid white;">'
     with open(f"./eng_translations_detailed.{MIN_LENGTH}.tsv", "r", encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter='\t', quotechar='|',
