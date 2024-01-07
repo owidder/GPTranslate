@@ -165,11 +165,11 @@ def read_translated_sentences(filename) -> [dict]:
 
 
 if __name__ == '__main__':
-    MIN_LENGTH = 900
+    MIN_LENGTH = 100
     out_name = f"./eng_translations_detailed.{MIN_LENGTH}.tsv"
     translated_sentences = read_translated_sentences(filename=out_name)
     sentences = read_tsv_file(filename=f"./eng_sentences_detailed.{MIN_LENGTH}.tsv", max_number_of_sentences=100)
-    sentence_nos = [t["sentence_no"] for t in translated_sentences]
+    sentence_nos = [int(t["sentence_no"]) for t in translated_sentences]
     with open(out_name, 'a', encoding='utf-8') as et:
         for s in sentences:
             sentence_no: int = s["sentence_no"]
