@@ -3,7 +3,7 @@ import csv
 
 
 def create_td(diff: [str], plusminus: str) -> str:
-    td = "<td style='border-bottom:5px solid white;border-right:3px solid white;'>"
+    td = "<td style='border-bottom:3px solid white;border-right:3px solid white;'>"
     for word in diff:
         if word[0] == plusminus:
             td += "<span style = 'color: red;'>{}</span>".format(word[1:])
@@ -24,12 +24,12 @@ def create_tr(with_tranlations, without_translations, source_text: str, official
     td_2 = create_td(with_without_diff_list, "+")
     td_3 = create_td(with_official_diff_list, "+")
     td_4 = create_td(without_official_diff_list, "+")
-    return f"<tr><td style='border-bottom:5px solid white;border-right:3px solid white;'>{source_text}</td>{td_1}{td_2}{td_3}{td_4}</tr>"
+    return f"<tr><td style='border-bottom:3px solid white;border-right:3px solid white;'>{source_text}</td>{td_1}{td_2}{td_3}{td_4}</tr>"
 
 
 if __name__ == "__main__":
     MIN_LENGTH = 100
-    table = '<table style="background-color: lightgrey; border: 1px solid white;">'
+    table = '<table style="font-family:verdana; font-size:12px; background-color: lightgrey; border: 1px solid white;">'
     with open(f"./eng_translations_detailed.{MIN_LENGTH}.tsv", "r", encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter='\t', quotechar='|',
                                 fieldnames=["sentence_no", "ne", "source_text", "with_translations", "without_translations", "translation1", "translation2", "translation3"])
